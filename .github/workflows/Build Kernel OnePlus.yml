@@ -760,6 +760,9 @@ jobs:
               sed -i 's|KSU_FEATURE_MOUNT_HIDE\] = "mount_hide",|&\n    [KSU_FEATURE_AVC_SPOOF] = "avc_spoof",|' kernel/policy/feature.c
             echo '--- enum / name table ---'
             grep -n 'AVC_SPOOF' kernel/include/uapi/feature.h kernel/policy/feature.c || true
+            sed -i 's/\bforced_mask\b/feat_forced_mask/g; s/\bforced_pending\b/feat_forced_pending/g' kernel/policy/feature.c
+            echo '--- renamed feature.c bitmaps to avoid clash with extension.c ---'
+            grep -n 'feat_forced_mask\|feat_forced_pending' kernel/policy/feature.c | head -3
           fi
           if [ -f kernel/ksu_main.c ]; then
             grep -q 'feature/avc_spoof.h' kernel/ksu_main.c || sed -i 's|#include "feature/selinux_hide.h"|#include "feature/selinux_hide.h"\n#include "feature/avc_spoof.h"|' kernel/ksu_main.c
