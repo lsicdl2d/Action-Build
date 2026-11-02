@@ -754,6 +754,12 @@ jobs:
             sed -i '/#include "runtime\/ksud_boot\.h"/d' kernel/feature/avc_spoof.c
             echo '--- stripped ksud_boot.h include (unused in builtin) ---'
             grep -n 'ksud_boot' kernel/feature/avc_spoof.c || echo 'none left'
+            grep -q 'KSU_FEATURE_AVC_SPOOF' kernel/include/uapi/feature.h || \
+              sed -i 's|KSU_FEATURE_MAX|    KSU_FEATURE_AVC_SPOOF = 10003,\n\n    KSU_FEATURE_MAX|' kernel/include/uapi/feature.h
+            grep -q 'avc_spoof' kernel/policy/feature.c || \
+              sed -i 's|KSU_FEATURE_MOUNT_HIDE\] = "mount_hide",|&\n    [KSU_FEATURE_AVC_SPOOF] = "avc_spoof",|' kernel/policy/feature.c
+            echo '--- enum / name table ---'
+            grep -n 'AVC_SPOOF' kernel/include/uapi/feature.h kernel/policy/feature.c || true
           fi
           if [ -f kernel/ksu_main.c ]; then
             grep -q 'feature/avc_spoof.h' kernel/ksu_main.c || sed -i 's|#include "feature/selinux_hide.h"|#include "feature/selinux_hide.h"\n#include "feature/avc_spoof.h"|' kernel/ksu_main.c
