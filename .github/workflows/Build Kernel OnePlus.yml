@@ -1395,17 +1395,18 @@ jobs:
           fi
       - name: Fix SUSFS KSU header declarations
         run: |
-          H=$(find kernel_workspace -type f -path '*kernelsu*' -name 'susfs.h' 2>/dev/null | head -n1)
-          echo "susfs header: $H"
-          if [ -n "$H" ]; then
-            if ! grep -q 'susfs_parse_priority_app_strings' "$H"; then
-              printf '\nvoid susfs_parse_priority_app_strings(void);\nvoid susfs_set_priority_uid_filter(void __user **user_info);\n' >> "$H"
-              echo 'appended missing SUSFS declarations'
+          n=0
+          for H in $(find kernel_workspace -type f -name 'susfs.h' 2>/dev/null); do
+            n=$((n+1))
+            echo "susfs header [$n]: $H"
+            if grep -q 'susfs_parse_priority_app_strings' "$H"; then
+              echo '  declarations already present'
             else
-              echo 'declarations already present'
+              printf '\nvoid susfs_parse_priority_app_strings(void);\nvoid susfs_set_priority_uid_filter(void __user **user_info);\n' >> "$H"
+              echo '  appended missing declarations'
             fi
-            grep -n 'priority' "$H" || true
-          fi
+          done
+          [ "$n" = "0" ] && echo 'WARNING: no susfs.h found anywhere'
 
       - name: Build Kernel FAST
         if: ${{ github.event.inputs.FAST_BUILD == 'true' }}
