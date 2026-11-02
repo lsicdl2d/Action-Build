@@ -1393,6 +1393,19 @@ jobs:
             sed -i -E 's/(\bnext_path = )strchr\(s, '"'"':'"'"'\)/\1(char *)strchr(s, '"'"':'"'"')/' "$f"
             grep -nE '\(char \*\)(strstr|strchr)' "$f" || echo "✅ 匹配失败，当前云控ubuntu版本无需此操作"
           fi
+      - name: Fix SUSFS KSU header declarations
+        run: |
+          H=$(find kernel_workspace -type f -path '*kernelsu*' -name 'susfs.h' 2>/dev/null | head -n1)
+          echo "susfs header: $H"
+          if [ -n "$H" ]; then
+            if ! grep -q 'susfs_parse_priority_app_strings' "$H"; then
+              printf '\nvoid susfs_parse_priority_app_strings(void);\nvoid susfs_set_priority_uid_filter(void __user **user_info);\n' >> "$H"
+              echo 'appended missing SUSFS declarations'
+            else
+              echo 'declarations already present'
+            fi
+            grep -n 'priority' "$H" || true
+          fi
 
       - name: Build Kernel FAST
         if: ${{ github.event.inputs.FAST_BUILD == 'true' }}
