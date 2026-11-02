@@ -1224,7 +1224,7 @@ jobs:
             set_config "CONFIG_KPM=y"
           fi
           if [ "${{ github.event.inputs.KPM }}" = "KPN" ]; then
-            set_config "CONFIG_KPM=n"
+            set_config "CONFIG_KPM=y"
           fi
 
           # SUSFS配置
