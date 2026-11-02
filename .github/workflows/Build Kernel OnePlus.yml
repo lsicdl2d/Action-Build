@@ -152,7 +152,7 @@ on:
         type: boolean
         description: "是否添加风驰驱动1.0？//Add Fengchi (HMBIRD) Driver 1.0?"
         required: true
-        default: true
+        default: false
       DROID_SPACES:
         type: boolean
         description: "是否添加轻量级Linux容器支持(DroidSpaces)？//Add lightweight Linux container support (DroidSpaces)?"
