@@ -745,7 +745,9 @@ jobs:
           echo "::endgroup::"
       - name: Inject avc_spoof into builtin KSU tree
         run: |
-          cd kernel_workspace/KernelSU
+          KSU_DIR="$(find kernel_workspace -maxdepth 4 -type d -name KernelSU | head -n1)"
+          echo "KSU_DIR=$KSU_DIR"
+          cd "$KSU_DIR"
           if [ ! -f kernel/feature/avc_spoof.c ]; then
             curl -LSs -o kernel/feature/avc_spoof.c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/feature/avc_spoof.c
             curl -LSs -o kernel/feature/avc_spoof.h https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/feature/avc_spoof.h
