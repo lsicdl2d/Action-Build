@@ -1643,6 +1643,11 @@ jobs:
           KPM_DIR="${GITHUB_WORKSPACE}/kernel_workspace/SukiSU_patch/kpm"
           # KPM_DIR="${GITHUB_WORKSPACE}/kernel_workspace/Action-Build/patches/kpm"
           KPN_DIR="${GITHUB_WORKSPACE}/kernel_workspace/Action-Build/patches/kpn"
+          # force official KernelPatch toolchain: the copy inside the upstream clone is stale
+          KP_VER="0.13.9"
+          curl -fsSL -o "${KPN_DIR}/kptools-linux" "https://github.com/bmax121/KernelPatch/releases/download/${KP_VER}/kptools-linux" || true
+          curl -fsSL -o "${KPN_DIR}/kpimg-linux"  "https://github.com/bmax121/KernelPatch/releases/download/${KP_VER}/kpimg-linux"  || true
+          ls -l "${KPN_DIR}"
           OUT_DIR="${GITHUB_WORKSPACE}/kernel_workspace/kernel_platform/out/Final-Image-Find"
           cd "${OUT_DIR}"
           if [ "${{ github.event.inputs.KPM }}" = "KPM" ]; then
