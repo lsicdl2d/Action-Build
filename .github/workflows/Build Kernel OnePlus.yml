@@ -751,6 +751,9 @@ jobs:
           if [ ! -f kernel/feature/avc_spoof.c ]; then
             curl -LSs -o kernel/feature/avc_spoof.c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/feature/avc_spoof.c
             curl -LSs -o kernel/feature/avc_spoof.h https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/feature/avc_spoof.h
+            sed -i '/#include "runtime\/ksud_boot\.h"/d' kernel/feature/avc_spoof.c
+            echo '--- stripped ksud_boot.h include (unused in builtin) ---'
+            grep -n 'ksud_boot' kernel/feature/avc_spoof.c || echo 'none left'
           fi
           if [ -f kernel/ksu_main.c ]; then
             grep -q 'feature/avc_spoof.h' kernel/ksu_main.c || sed -i 's|#include "feature/selinux_hide.h"|#include "feature/selinux_hide.h"\n#include "feature/avc_spoof.h"|' kernel/ksu_main.c
