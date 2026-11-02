@@ -8,6 +8,11 @@ Modules keep loading and working normally -- only the listing is filtered.
 
 Same design idea as SukiSU's mount_hide: filter by reader, do not unload.
 
+Insertion point note: the guard goes right before the
+"if (mod->state == MODULE_STATE_UNFORMED)" statement, i.e. AFTER the last
+declaration. Inserting earlier would place a statement before
+"unsigned int size;", which trips -Wdeclaration-after-statement.
+
 Idempotent. Fails loudly if anchors are missing.
 
 Usage:
@@ -54,15 +59,12 @@ static bool ksu_module_should_hide(const char *name)
 
 """
 
-DECL_BLOCK = (
-    "\tstruct module *mod = list_entry(p, struct module, list);\n"
-    "\tchar buf[MODULE_FLAGS_BUF_SIZE];\n"
-    "\tvoid *value;\n"
-)
+# Anchor: last declaration is done, first statement begins. Unique in the file.
+ANCHOR = "\t/* We always ignore unformed modules. */\n\tif (mod->state == MODULE_STATE_UNFORMED)"
 
 GUARD = (
-    "\n\tif (module_is_live(mod) && ksu_module_should_hide(mod->name))\n"
-    "\t\treturn 0;\n"
+    "\tif (module_is_live(mod) && ksu_module_should_hide(mod->name))\n"
+    "\t\treturn 0;\n\n"
 )
 
 SHOW_SIG = "static int m_show(struct seq_file *m, void *p)"
@@ -107,9 +109,9 @@ def main():
         die("m_show() signature count=%d in %s" % (src.count(SHOW_SIG), path))
     src = src.replace(SHOW_SIG, helper + SHOW_SIG, 1)
 
-    if src.count(DECL_BLOCK) != 1:
-        die("m_show() declaration block count=%d in %s" % (src.count(DECL_BLOCK), path))
-    src = src.replace(DECL_BLOCK, DECL_BLOCK + GUARD, 1)
+    if src.count(ANCHOR) != 1:
+        die("insertion anchor count=%d in %s (kernel layout changed)" % (src.count(ANCHOR), path))
+    src = src.replace(ANCHOR, GUARD + ANCHOR, 1)
 
     with open(path, "w", encoding="utf-8", errors="surrogateescape") as f:
         f.write(src)
