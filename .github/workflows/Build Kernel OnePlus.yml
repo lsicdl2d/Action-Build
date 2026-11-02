@@ -1009,6 +1009,13 @@ jobs:
         if: ${{ github.event.inputs.HIDE_MODULES == 'true' }}
         run: |
           set -euo pipefail
+          echo "WS=$GITHUB_WORKSPACE"
+          echo "PWD0=$(pwd)"
+          ls -la "$GITHUB_WORKSPACE" | head -30 || true
+          echo "--- scripts dir ---"
+          ls -la "$GITHUB_WORKSPACE/scripts" || true
+          echo "--- find ---"
+          find "$GITHUB_WORKSPACE" -maxdepth 3 -name hide_kernel_modules.py 2>/dev/null || true
           cd kernel_workspace/kernel_platform/common
           echo "=== Hide kernel modules from /proc/modules (per-reader filter) ==="
           python3 "${GITHUB_WORKSPACE}/scripts/hide_kernel_modules.py" . "${{ github.event.inputs.HIDE_MODULE_NAMES }}"
