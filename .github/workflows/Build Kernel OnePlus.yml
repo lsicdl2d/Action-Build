@@ -1410,11 +1410,11 @@ jobs:
           [ -z "$S" ] && S=$(find kernel_workspace -type f -name 'susfs.c' 2>/dev/null | grep '/fs/susfs.c' | head -n1)
           if [ -n "$S" ]; then
             echo "susfs source: $S"
-            if grep -q 'void susfs_set_priority_uid_filter' "$S"; then
-              echo '  definitions already present'
+            if grep -q 'whale_priority_stub' "$S"; then
+              echo '  stub already appended'
             else
-              printf '\nvoid susfs_set_priority_uid_filter(void __user **user_info) { }\nvoid susfs_parse_priority_app_strings(void) { }\n' >> "$S"
-              echo '  appended stub definitions'
+              printf '\n/* whale_priority_stub */\n#ifndef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER\nvoid susfs_set_priority_uid_filter(void __user **user_info) { }\nvoid susfs_parse_priority_app_strings(void) { }\n#endif\n' >> "$S"
+              echo '  appended guarded stub definitions'
             fi
           else
             echo 'WARNING: fs/susfs.c not found'
